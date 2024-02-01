@@ -1,0 +1,45 @@
+import nltk
+from nltk.corpus import wordnet
+nltk.download('averaged_perceptron_tagger')
+# Sample sentence
+sentence = "The quick brown fox jumps over the lazy dog."
+
+# Tokenize the sentence and perform part-of-speech tagging
+tokens = nltk.word_tokenize(sentence)
+pos_tags = nltk.pos_tag(tokens)
+
+# Noun phrase extraction using part-of-speech tags
+noun_phrases = []
+current_noun_phrase = []
+
+for word, pos in pos_tags:
+    if pos.startswith('N'):  # Nouns and noun phrases typically start with 'N'
+        current_noun_phrase.append(word)
+    else:
+        if current_noun_phrase:
+            noun_phrases.append(' '.join(current_noun_phrase))
+        current_noun_phrase = []
+
+# Add the last noun phrase if it exists
+if current_noun_phrase:
+    noun_phrases.append(' '.join(current_noun_phrase))
+
+# Extract meanings of noun phrases using WordNet
+noun_phrase_meanings = {}
+
+for np in noun_phrases:
+    synsets = wordnet.synsets(np)
+    if synsets:
+        meanings = [synset.definition() for synset in synsets]
+        noun_phrase_meanings[np] = meanings
+
+# Display extracted noun phrases and their meanings
+print("Noun Phrases:")
+for np in noun_phrases:
+    print("- " + np)
+
+print("\nMeanings of Noun Phrases:")
+for np, meanings in noun_phrase_meanings.items():
+    print("- " + np + ":")
+    for meaning in meanings:
+        print("  - " + meaning)
