@@ -1,0 +1,39 @@
+import nltk
+from nltk.tokenize import word_tokenize, sent_tokenize
+from nltk import pos_tag
+
+def resolve_references(text):
+    sentences = sent_tokenize(text)
+    resolved_text = ""
+
+    for sentence in sentences:
+        tokens = word_tokenize(sentence)
+        tagged_tokens = pos_tag(tokens)
+
+        for i in range(len(tagged_tokens)):
+            word, pos = tagged_tokens[i]
+
+            if pos == 'PRP':  # Check if the word is a pronoun
+                antecedent = find_antecedent(tagged_tokens, i)
+                resolved_text += antecedent + " "
+            else:
+                resolved_text += word + " "
+
+        resolved_text += "\n"
+
+    return resolved_text
+
+def find_antecedent(tagged_tokens, pronoun_index):
+    for i in range(pronoun_index - 1, -1, -1):
+        word, pos = tagged_tokens[i]
+
+        if pos.startswith('N'):  # Check if the word is a noun
+            return word
+
+    return "[UNKNOWN]"
+
+if __name__ == "__main__":
+    input_text = "John is a programmer. He loves to code. Mary is a designer. She creates beautiful designs."
+
+    resolved_text = resolve_references(input_text)
+    print(resolved_text)
