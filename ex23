@@ -1,0 +1,40 @@
+import nltk
+from nltk.tokenize import sent_tokenize, word_tokenize
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+def calculate_coherence(text):
+    # Tokenize the text into sentences
+    sentences = sent_tokenize(text)
+
+    # Tokenize each sentence into words
+    tokenized_sentences = [word_tokenize(sentence) for sentence in sentences]
+
+    # Create a Bag-of-Words representation of the sentences
+    vectorizer = CountVectorizer()
+    sentence_vectors = vectorizer.fit_transform([" ".join(sentence) for sentence in tokenized_sentences]).toarray()
+
+    # Calculate cosine similarity between sentence vectors
+    similarity_matrix = cosine_similarity(sentence_vectors)
+
+    # Calculate average similarity (coherence) excluding self-similarity
+    total_similarity = 0
+    for i in range(len(similarity_matrix)):
+        for j in range(len(similarity_matrix[i])):
+            if i != j:
+                total_similarity += similarity_matrix[i][j]
+
+    coherence = total_similarity / ((len(sentences) * (len(sentences) - 1)) / 2)
+
+    return coherence
+
+if __name__ == "__main__":
+    input_text = """
+    John loves to play video games. He often spends hours exploring virtual worlds and completing challenging missions.
+    The thrill of victory keeps him engaged. Besides gaming, he enjoys hiking in the mountains.
+    Nature provides a welcome contrast to the digital adventures. Last weekend, he hiked to the summit of a breathtaking peak and captured stunning photos.
+    John's dual passion for gaming and nature showcases the diverse aspects of his personality.
+    """
+
+    coherence_score = calculate_coherence(input_text)
+    print(f"Coherence Score: {coherence_score}")
